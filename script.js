@@ -1,8 +1,51 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- State & Config ---
     const state = {
-        stack: 'supa', // 'supa' (Supabase/Gemini) or 'fire' (Firebase/GCS)
-        users: 1000
+        stack: 'supa',
+        userCount: 1000
+    };
+
+    // --- Dynamic Pricing Engine ---
+    // Assumptions:
+    // 1 user = 2 sessions/mo, 50 DB ops/session, 2k AI tokens/session
+    const metrics = {
+        dbOpsPerUser: 100,
+        aiTokensPerUser: 4000,
+        computeHoursPerUser: 0.05 // Active aggregate time
+    };
+
+    const calculateCosts = (stackId, users) => {
+        if (stackId === 'supa') {
+            // Fixed Costs
+            const renderFee = users <= 100 ? 0 : (users <= 1000 ? 7 : 19);
+            const supabaseFee = users <= 100 ? 0 : 25; // Pro plan starts after 1k or manual
+            
+            // Variable Costs
+            const geminiCost = (users * metrics.aiTokensPerUser / 1000000) * 0.5; // $0.50 per 1M tokens
+            const bandwidthOverage = users > 5000 ? (users - 5000) * 0.01 : 0; // $0.01 per user over 5k
+
+            return {
+                fixed: renderFee + supabaseFee,
+                variable: geminiCost + bandwidthOverage,
+                total: renderFee + supabaseFee + geminiCost + bandwidthOverage,
+                breakdown: `Fixed: $${renderFee} (Render) + $${supabaseFee} (Supabase Pro). Variable: $${geminiCost.toFixed(1)} (Gemini API) + $${bandwidthOverage.toFixed(1)} (Overage).`
+            };
+        } else {
+            // Firebase / GCP (High Variable)
+            // Firestores: $0.18 per 100k ops. 10k users = 1M ops = $1.80
+            const firestoreCost = (users * metrics.dbOpsPerUser / 100000) * 0.18;
+            // Cloud Run: Free tier is huge, then ~$0.00002 per request/second
+            const cloudRunCost = users <= 500 ? 0 : (users * 0.005); 
+            // Vertex AI: Slightly more expensive for enterprise features
+            const vertexCost = (users * metrics.aiTokensPerUser / 1000000) * 1.5; 
+
+            return {
+                fixed: 0,
+                variable: firestoreCost + cloudRunCost + vertexCost,
+                total: firestoreCost + cloudRunCost + vertexCost,
+                breakdown: `Fixed: $0. Variable: $${firestoreCost.toFixed(1)} (Firestore) + $${cloudRunCost.toFixed(1)} (Cloud Run) + $${vertexCost.toFixed(1)} (Vertex AI).`
+            };
+        }
     };
 
     const data = {
@@ -24,26 +67,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 { domain: 'AI Service', type: 'SaaS', resp: 'Provider: Model Infra. Dev: Prompts/Keys.' },
                 { domain: 'Auth / Storage', type: 'BaaS', resp: 'Provider: Security. Dev: Token/Bucket rules.' }
             ],
-            costs: {
-                '100': { 
-                    total: 10, 
-                    note: "Render (Free) + Supabase (Free): Minimal hosting overhead (Render overage $7). Gemini API calls included up to 1k/mo." 
-                },
-                '1000': { 
-                    total: 45, 
-                    note: "Render Starter ($7) + Supabase Pro ($25): Robust DB tier with RLS & Backups. Pay-as-you-go Gemini API (~$10/mo)." 
-                },
-                '10000': { 
-                    total: 140, 
-                    note: "High Volume: Render Professional ($19) + Supabase Pro ($25) + Bandwidth overages (~$20) + Heavy Gemini API usage (~$80)." 
-                }
-            },
             lockin: {
-                fin: 'Supabase flat tiers are predictable. Render scales linearly.',
-                proc: 'Low. Standard Express/Postgres skills. Portable to any VPS.',
-                data: 'Minimal. Full SQL dumps mean you can leave Supabase in hours.'
-            },
-            risk: 'Backend scaling. Express on Render needs manual horizontal scaling configuration as you hit 5k+ concurrent users.'
+                fin: 'Predicatable billing via flat monthly tiers. High scalability requires Pro plan.',
+                proc: 'Low. Standard Express/Postgres skills are universally portable.',
+                data: 'Minimal. Standard SQL backups are easy to migrate to any VPS.'
+            }
         },
         fire: {
             theme: '#ffca28',
@@ -63,26 +91,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 { domain: 'AI Service', type: 'PaaS', resp: 'Provider: Google Vertex. Dev: Vertex Pipelines.' },
                 { domain: 'Auth / Storage', type: 'BaaS', resp: 'Provider: IAM Unified. Dev: Security Rules.' }
             ],
-            costs: {
-                '100': { 
-                    total: 2, 
-                    note: "Spark Plan (Free): Auth, Firestore, and Hosting are free below threshold. Minimal Cloud Run compute unit charges." 
-                },
-                '1000': { 
-                    total: 25, 
-                    note: "Blaze Plan (Pay-as-you-go): Cloud Run compute (~$10), Firestore read/write ops (~$5), and Vertex AI Gemini tokens (~$10)." 
-                },
-                '10000': { 
-                    total: 95, 
-                    note: "GCP Elastic Scaling: Cloud Run (~$25 auto-scaling), Firestore high-volume NoSQL ($30), and Vertex AI processed tokens ($40)." 
-                }
-            },
             lockin: {
-                fin: 'Usage-based spikes can be dangerous if a loop is introduced in code.',
-                proc: 'High. Knowledge of GCP IAM, Cloud Build, and Vertex SDK is specialized.',
-                data: 'Moderate. Firestore NoSQL is harder to export to SQL later. Denormalized data silos happen.'
-            },
-            risk: 'IAM Complexity. Misconfiguring Google Cloud IAM roles can lead to "Silent Failures" and severe security leaks.'
+                fin: 'Risk of "Spike Billing" on Blaze plan if functions or loops are mismanaged.',
+                proc: 'High. Deep knowledge of IAM and Vertex SDK is specialized for GCP.',
+                data: 'Moderate. Transitioning NoSQL Firestore to SQL is complex and costly.'
+            }
         }
     };
 
@@ -105,17 +118,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const lockProc = document.getElementById('lock-proc');
     const lockData = document.getElementById('lock-data');
     const totalTimeLabel = document.getElementById('total-time');
+    const noteSupaEl = document.getElementById('note-supa').querySelector('.content');
+    const noteFireEl = document.getElementById('note-fire').querySelector('.content');
 
-    // --- Update Logic ---
+    // --- Update UI ---
     const updateUI = () => {
-        const stack = data[state.stack];
         const isSupa = state.stack === 'supa';
+        const stack = data[state.stack];
 
-        // 1. Toggle Button Styles
+        // 1. Calculate Live Costs
+        const sCost = calculateCosts('supa', state.userCount);
+        const fCost = calculateCosts('fire', state.userCount);
+
+        // 2. Update Header & Toggles
         btnSupa.classList.toggle('active', isSupa);
         btnFire.classList.toggle('active', !isSupa);
 
-        // 2. Diagram Update
+        // 3. Diagram
         boxBackend.textContent = stack.arch.backend;
         labelBackend.textContent = stack.arch.backendLabel;
         boxDatabase.textContent = stack.arch.db;
@@ -125,40 +144,37 @@ document.addEventListener('DOMContentLoaded', () => {
         boxAi.nextElementSibling.textContent = stack.arch.aiLabel;
         labelArch.textContent = isSupa ? "Current Stack: Modular BaaS" : "Alternative: Unified GCP Core";
 
-        // 3. Classification Table
+        // 4. Classification Table
         classBody.innerHTML = stack.classification.map(item => `
             <tr>
                 <td><strong>${item.domain}</strong></td>
-                <td><span class="badge" style="border: 1px solid rgba(255,255,255,0.1)">${item.type}</span></td>
+                <td><span class="badge">${item.type}</span></td>
                 <td>${item.resp}</td>
             </tr>
         `).join('');
 
-        // 4. Costing
-        const sCost = data.supa.costs[state.users];
-        const fCost = data.fire.costs[state.users];
-        
-        priceSupa.textContent = `$${sCost.total}`;
-        priceFire.textContent = `$${fCost.total}`;
+        // 5. Cost Visualizer
+        priceSupa.textContent = `$${Math.round(sCost.total)}`;
+        priceFire.textContent = `$${Math.round(fCost.total)}`;
 
-        const maxVal = Math.max(sCost.total, fCost.total, 150);
-        document.getElementById('note-supa').querySelector('.content').textContent = sCost.note;
-        document.getElementById('note-fire').querySelector('.content').textContent = fCost.note;
-        
-        // Indicate which note is related to the ACTIVE stack selection visually
+        const maxVal = Math.max(sCost.total, fCost.total, 40);
+        barSupa.style.width = `${(sCost.total / maxVal) * 100}%`;
+        barFire.style.width = `${(fCost.total / maxVal) * 100}%`;
+
+        noteSupaEl.textContent = sCost.breakdown;
+        noteFireEl.textContent = fCost.breakdown;
+
         document.getElementById('note-supa').style.opacity = isSupa ? "1" : "0.5";
         document.getElementById('note-fire').style.opacity = isSupa ? "0.5" : "1";
-        
-        // 5. Analysis
+
+        // 6. Lock-in Analysis
         lockFin.textContent = stack.lockin.fin;
         lockProc.textContent = stack.lockin.proc;
         lockData.textContent = stack.lockin.data;
 
-        // 6. Risks
+        // 7. Risks
         document.getElementById('risk-current').style.opacity = isSupa ? "1" : "0.4";
         document.getElementById('risk-alt').style.opacity = isSupa ? "0.4" : "1";
-        
-        // 7. Migration Time logic
         totalTimeLabel.textContent = isSupa ? "Status: Operational" : "~12 Working Days";
     };
 
@@ -170,11 +186,10 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', (e) => {
             segBtns.forEach(b => b.classList.remove('active'));
             e.target.classList.add('active');
-            state.users = parseInt(e.target.dataset.val);
+            state.userCount = parseInt(e.target.dataset.val);
             updateUI();
         });
     });
 
-    // Initial Trigger
     updateUI();
 });
