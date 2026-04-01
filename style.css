@@ -246,23 +246,43 @@ section#costing h2::before { background: var(--warning); }
 .st-box { border-color: #38bdf8; color: #38bdf8; }
 .ai-box { border-color: #f472b6; color: #f472b6; }
 
-/* Tables */
-.grid-table {
-    width: 100%;
-    border-collapse: collapse;
+.class-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
 }
 
-.grid-table th, .grid-table td {
+.class-item {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
     padding: 1.25rem;
-    text-align: left;
-    border-bottom: 1px solid var(--card-border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: transform 0.3s ease;
 }
 
-.grid-table th {
-    font-size: 0.75rem;
-    text-transform: uppercase;
+.class-item:hover {
+    transform: translateX(5px);
+    background: rgba(255,255,255,0.05);
+}
+
+.class-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.class-header strong {
+    font-size: 1rem;
+    color: #fff;
+}
+
+.class-resp {
+    font-size: 0.85rem;
     color: var(--text-dim);
-    letter-spacing: 1px;
+    line-height: 1.4;
 }
 
 .badge {
