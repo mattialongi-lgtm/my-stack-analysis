@@ -27,15 +27,15 @@ document.addEventListener('DOMContentLoaded', () => {
             costs: {
                 '100': { 
                     total: 10, 
-                    note: "Render (Free) + Supabase (Free): Chiamate Gemini incluse fino a 1k/mese. Costi di hosting minimi (Render overage $7)." 
+                    note: "Render (Free) + Supabase (Free): Minimal hosting overhead (Render overage $7). Gemini API calls included up to 1k/mo." 
                 },
                 '1000': { 
                     total: 45, 
-                    note: "Render Starter ($7) + Supabase Pro ($25): Piano fisso per DB potente (RLS, Backups). Inclusi Gemini Pay-as-you-go (~$10/mese)." 
+                    note: "Render Starter ($7) + Supabase Pro ($25): Robust DB tier with RLS & Backups. Pay-as-you-go Gemini API (~$10/mo)." 
                 },
                 '10000': { 
                     total: 140, 
-                    note: "Carico Elevato: Render Professional ($19) + Supabase Pro ($25) + Bandwidth overages (~$20) + Traffico Gemini API (~$80). Costi fissi più alti ma più prevedibili." 
+                    note: "High Volume: Render Professional ($19) + Supabase Pro ($25) + Bandwidth overages (~$20) + Heavy Gemini API usage (~$80)." 
                 }
             },
             lockin: {
@@ -66,15 +66,15 @@ document.addEventListener('DOMContentLoaded', () => {
             costs: {
                 '100': { 
                     total: 2, 
-                    note: "Piano Spark (Free): Firestore, Auth e Hosting sono gratuiti sotto soglia. Solo costi minimi per Cloud Run (compute unit minime)." 
+                    note: "Spark Plan (Free): Auth, Firestore, and Hosting are free below threshold. Minimal Cloud Run compute unit charges." 
                 },
                 '1000': { 
                     total: 25, 
-                    note: "Piano Blaze (Pay-as-you-go): Cloud Run (~$10 per traffico attivo), Firestore (~$5 per letture/scritture frequenti) e Vertex AI (~$10 per chiamate Gemini API)." 
+                    note: "Blaze Plan (Pay-as-you-go): Cloud Run compute (~$10), Firestore read/write ops (~$5), and Vertex AI Gemini tokens (~$10)." 
                 },
                 '10000': { 
                     total: 95, 
-                    note: "Scalabilità GCP: Cloud Run ($25 per auto-scaling orizzontale), Firestore ($30 per database NoSQL ad alto volume) e Vertex AI ($40 per token AI elaborati). Risparmio rispetto allo stack fisso, ma con potenziale variabilità mensile." 
+                    note: "GCP Elastic Scaling: Cloud Run (~$25 auto-scaling), Firestore high-volume NoSQL ($30), and Vertex AI processed tokens ($40)." 
                 }
             },
             lockin: {
