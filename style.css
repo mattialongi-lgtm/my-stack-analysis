@@ -140,6 +140,7 @@ body {
   margin-bottom: 1.5rem;
   background: linear-gradient(135deg, #fff 0%, #64748b 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   line-height: 1.1;
 }
@@ -276,7 +277,26 @@ section#costing h2::before { background: var(--warning); }
 /* High Contrast Bars */
 .cost-visualizer { margin-bottom: 2rem; }
 .cost-bar-row { margin-bottom: 1.5rem; }
-.cost-label { font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-dim); }
+.cost-label { 
+    font-size: 0.9rem; 
+    font-weight: 700; 
+    margin-bottom: 0.75rem; 
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cost-tag {
+    font-size: 0.65rem;
+    padding: 3px 8px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    font-weight: 800;
+}
+
+.cost-tag.fixed { background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.2); }
+.cost-tag.usage { background: rgba(168, 85, 247, 0.1); color: #a855f7; border: 1px solid rgba(168, 85, 247, 0.2); }
 
 .bar-track {
     height: 12px;
@@ -307,14 +327,18 @@ section#costing h2::before { background: var(--warning); }
 }
 
 .assumption-note {
-    padding: 1rem;
+    padding: 1.5rem;
     background: rgba(255,255,255,0.03);
     border-radius: 8px;
     font-size: 0.85rem;
     color: var(--text-dim);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
-.assumption-note strong { color: #fff; }
+.note-block { transition: opacity 0.3s ease; }
+.note-block strong { color: #fff; display: block; margin-bottom: 2px; }
 
 /* Migration Items */
 .assessment-grid {

@@ -27,15 +27,15 @@ document.addEventListener('DOMContentLoaded', () => {
             costs: {
                 '100': { 
                     total: 10, 
-                    note: 'Render Free Tier + Supabase Free + Gemini Free (Low RPM). Small overage on Render (~$7).' 
+                    note: "Render (Free) + Supabase (Free): Chiamate Gemini incluse fino a 1k/mese. Costi di hosting minimi (Render overage $7)." 
                 },
                 '1000': { 
                     total: 45, 
-                    note: 'Render Starter ($7) + Supabase Pro ($25) + Gemini Pay-as-you-Go ($10 est). Full RLS enabled.' 
+                    note: "Render Starter ($7) + Supabase Pro ($25): Piano fisso per DB potente (RLS, Backups). Inclusi Gemini Pay-as-you-go (~$10/mese)." 
                 },
                 '10000': { 
                     total: 140, 
-                    note: 'Render Professional ($19) + Supabase Pro ($25) + Bandwidth overages ($20) + Gemini Usage ($80).' 
+                    note: "Carico Elevato: Render Professional ($19) + Supabase Pro ($25) + Bandwidth overages (~$20) + Traffico Gemini API (~$80). Costi fissi più alti ma più prevedibili." 
                 }
             },
             lockin: {
@@ -66,15 +66,15 @@ document.addEventListener('DOMContentLoaded', () => {
             costs: {
                 '100': { 
                     total: 2, 
-                    note: 'Firebase Spark (Free) + GCR minimal bill. Well within generous free tiers.' 
+                    note: "Piano Spark (Free): Firestore, Auth e Hosting sono gratuiti sotto soglia. Solo costi minimi per Cloud Run (compute unit minime)." 
                 },
                 '1000': { 
                     total: 25, 
-                    note: 'GCR Usage (~$10) + Firestore Reads (~$5) + Vertex AI (~$10). Blaze plan pay-as-you-go.' 
+                    note: "Piano Blaze (Pay-as-you-go): Cloud Run (~$10 per traffico attivo), Firestore (~$5 per letture/scritture frequenti) e Vertex AI (~$10 per chiamate Gemini API)." 
                 },
                 '10000': { 
                     total: 95, 
-                    note: 'GCR scaling ($25) + Firestore heavy usage ($30) + Vertex AI ($40). No fixed price overhead.' 
+                    note: "Scalabilità GCP: Cloud Run ($25 per auto-scaling orizzontale), Firestore ($30 per database NoSQL ad alto volume) e Vertex AI ($40 per token AI elaborati). Risparmio rispetto allo stack fisso, ma con potenziale variabilità mensile." 
                 }
             },
             lockin: {
@@ -95,7 +95,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const priceFire = document.getElementById('price-fire');
     const barSupa = document.getElementById('bar-supa');
     const barFire = document.getElementById('bar-fire');
-    const costNote = document.getElementById('cost-note');
     const boxBackend = document.getElementById('box-backend');
     const labelBackend = document.getElementById('label-backend');
     const boxDatabase = document.getElementById('box-database');
@@ -143,11 +142,13 @@ document.addEventListener('DOMContentLoaded', () => {
         priceFire.textContent = `$${fCost.total}`;
 
         const maxVal = Math.max(sCost.total, fCost.total, 150);
-        barSupa.style.width = `${(sCost.total / maxVal) * 100}%`;
-        barFire.style.width = `${(fCost.total / maxVal) * 100}%`;
+        document.getElementById('note-supa').querySelector('.content').textContent = sCost.note;
+        document.getElementById('note-fire').querySelector('.content').textContent = fCost.note;
         
-        costNote.textContent = isSupa ? sCost.note : fCost.note;
-
+        // Indicate which note is related to the ACTIVE stack selection visually
+        document.getElementById('note-supa').style.opacity = isSupa ? "1" : "0.5";
+        document.getElementById('note-fire').style.opacity = isSupa ? "0.5" : "1";
+        
         // 5. Analysis
         lockFin.textContent = stack.lockin.fin;
         lockProc.textContent = stack.lockin.proc;
