@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Migration Mirror: Supabase/Gemini vs Firebase/Cloud Run</title>
     <meta name="description" content="A comprehensive migration tool comparing Supabase + Gemini vs Firebase + Google Cloud Run.">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=1.1">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -18,11 +18,11 @@
         </div>
         <div class="config-controls">
             <div class="stack-toggle-container">
-                <button id="btn-supa" class="stack-btn active">Current: Supabase + Gemini</button>
-                <button id="btn-fire" class="stack-btn">Alt: Firebase + Cloud Run</button>
+                <button id="btn-supa" class="stack-btn active">Current Stack</button>
+                <button id="btn-fire" class="stack-btn">Alt Stack</button>
             </div>
             <div class="user-selector-container">
-                <label>Mau Count:</label>
+                <label>Vol:</label>
                 <div class="segments">
                     <button class="seg-btn" data-val="100">100</button>
                     <button class="seg-btn active" data-val="1000">1K</button>
@@ -34,164 +34,103 @@
 
     <header class="hero">
         <h1>Cloud Stack Transition Planner</h1>
-        <p>Analyze architecture shifts, cost projections, and engineering effort when migrating from a modular Supabase/Gemini stack to a unified GCP/Firebase ecosystem.</p>
+        <p>Analyze architecture, cost, and effort when moving to a unified GCP ecosystem.</p>
     </header>
 
     <main class="dashboard-grid">
-        <!-- Architecture Diagram -->
+        <!-- 1. Diagram -->
         <section id="architecture" class="card full-width">
             <div class="card-header">
-                <h2>1. Deep Architecture Diagram</h2>
-                <span class="badge" id="arch-type-label">Current: Modular/BaaS</span>
+                <h2>1. Deep Architecture</h2>
+                <span class="badge" id="arch-type-label">Current: Modular</span>
             </div>
             <div class="diagram-shell">
-                <div class="diagram-layer" data-layer="user">
-                    <div class="box user-box">🌐 End User (Web)</div>
+                <div class="diagram-layer"><div class="box user-box">Web Client</div></div>
+                <div class="connector"></div>
+                <div class="diagram-layer">
+                    <div class="box fe-box">Frontend App</div>
+                    <div class="sub-label" id="label-frontend">Hosting Service</div>
                 </div>
-                <div class="connector dot-path"></div>
-                <div class="diagram-layer" data-layer="frontend">
-                    <div class="box fe-box">React + Vite (Frontend)</div>
-                    <div class="sub-label">Firebase Hosting / Vercel / Render</div>
+                <div class="connector"></div>
+                <div class="diagram-layer">
+                    <div class="box be-box" id="box-backend">Backend Service</div>
+                    <div class="sub-label" id="label-backend">Processing Layer</div>
                 </div>
-                <div class="connector dot-path"></div>
-                <div class="diagram-layer" data-layer="backend">
-                    <div class="box be-box" id="box-backend">Express / Node.js API</div>
-                    <div class="sub-label" id="label-backend">Render / Railway / Cloud Run</div>
-                </div>
-                <div class="multi-connector">
-                    <div class="conn-left"></div>
-                    <div class="conn-center"></div>
-                    <div class="conn-right"></div>
-                </div>
+                <div class="multi-connector"></div>
                 <div class="diagram-bottom-row">
-                    <div class="diagram-layer" data-layer="database">
-                        <div class="box db-box" id="box-database">PostgreSQL (Supabase)</div>
-                        <div class="sub-label">SQL / RLS Enabled</div>
+                    <div class="diagram-layer">
+                        <div class="box db-box" id="box-database">Database</div>
+                        <div class="sub-label" id="label-database">Storage Engine</div>
                     </div>
-                    <div class="diagram-layer" data-layer="storage">
-                        <div class="box st-box" id="box-storage">Supabase Storage</div>
-                        <div class="sub-label">S3 Compatible</div>
+                    <div class="diagram-layer">
+                        <div class="box st-box" id="box-storage">Bucket Storage</div>
+                        <div class="sub-label" id="label-storage">Assets</div>
                     </div>
-                    <div class="diagram-layer" data-layer="ai">
-                        <div class="box ai-box" id="box-ai">Google Gemini API</div>
-                        <div class="sub-label">Generative AI SaaS</div>
+                    <div class="diagram-layer">
+                        <div class="box ai-box" id="box-ai">AI Engine</div>
+                        <div class="sub-label" id="label-ai">Intelligence</div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Service Classification -->
+        <!-- 2. Classification -->
         <section id="classification" class="card">
             <h2>2. Service Classification</h2>
             <div id="class-grid" class="class-grid">
-                <!-- Dynamic Cards -->
+                <!-- Javascript will populate this -->
             </div>
         </section>
 
-        <!-- Cost Comparison -->
+        <!-- 3. Costs -->
         <section id="costing" class="card highlight">
-            <h2>3. Multi-Volume Cost Projections</h2>
+            <h2>3. Cost Projections</h2>
             <div class="cost-visualizer">
                 <div class="cost-bar-row">
-                    <div class="cost-label">Supabase + Gemini Stack <span class="cost-tag fixed">Standard Tiers + API Usage</span></div>
+                    <div class="cost-label">Current Stack <span class="cost-tag fixed">Tiers</span></div>
                     <div class="bar-track stacked">
-                        <div id="bar-supa-fixed" class="bar segment primary" style="width: 20%"></div>
-                        <div id="bar-supa-var" class="bar segment variable" style="width: 10%"></div>
+                        <div id="bar-supa-fixed" class="bar segment primary"></div>
+                        <div id="bar-supa-var" class="bar segment variable"></div>
                     </div>
                     <div class="cost-price" id="price-supa">$0</div>
                 </div>
                 <div class="cost-bar-row">
-                    <div class="cost-label">Firebase + Cloud Run Stack <span class="cost-tag usage">Pay-as-you-Scale (Elastic)</span></div>
+                    <div class="cost-label">Alternative Stack <span class="cost-tag usage">Usage</span></div>
                     <div class="bar-track stacked">
-                        <div id="bar-fire-fixed" class="bar segment secondary" style="width: 0%"></div>
-                        <div id="bar-fire-var" class="bar segment variable" style="width: 15%"></div>
+                        <div id="bar-fire-fixed" class="bar segment secondary"></div>
+                        <div id="bar-fire-var" class="bar segment variable"></div>
                     </div>
                     <div class="cost-price" id="price-fire">$0</div>
                 </div>
             </div>
             <div class="assumption-note">
-                <div class="note-block" id="note-supa">
-                    <strong>Supabase Notes:</strong> <span class="content">Loading...</span>
-                </div>
-                <div class="note-block" id="note-fire">
-                    <strong>Firebase Notes:</strong> <span class="content">Loading...</span>
-                </div>
+                <div class="note-block" id="note-supa"><strong>Current Detail:</strong> <span class="content">Loading</span></div>
+                <div class="note-block" id="note-fire"><strong>Alt Detail:</strong> <span class="content">Loading</span></div>
             </div>
         </section>
 
-        <!-- Migration Assessment -->
-        <section id="migration" class="card full-width">
-            <h2>4. Migration Assessment & Effort</h2>
-            <div class="assessment-grid">
-                <div class="assess-item" data-area="database">
-                    <div class="assess-header">Database: SQL ➜ NoSQL</div>
-                    <div class="assess-desc">Transitioning from Postgres to Firestore requires a complete schema redesign (Denormalization).</div>
-                    <div class="effort-tag high">High: 5-7 Days</div>
-                </div>
-                <div class="assess-item" data-area="auth">
-                    <div class="assess-header">Auth / Storage</div>
-                    <div class="assess-desc">Swapping Supabase-JS SDK for Firebase SDK. Mapping user metadata properties.</div>
-                    <div class="effort-tag low">Low: 1-2 Days</div>
-                </div>
-                <div class="assess-item" data-area="backend">
-                    <div class="assess-header">Backend API (GCR)</div>
-                    <div class="assess-desc">Containerizing Express.js app. Setting up GCP Cloud Build and IAM permissions.</div>
-                    <div class="effort-tag mid">Mid: 3 Days</div>
-                </div>
-                <div class="assess-item" data-area="ai">
-                    <div class="assess-header">AI Integration (Vertex)</div>
-                    <div class="assess-desc">Migrating from raw Gemini API to Vertex AI client. Updating Token limit handlers.</div>
-                    <div class="effort-tag low">Low: 1 Day</div>
-                </div>
-            </div>
-            <div class="total-effort-bar">
-                <span>Estimated Total Development Time:</span>
-                <span id="total-time">~12 Working Days</span>
-            </div>
-        </section>
-
-        <!-- Lock-in Analysis -->
+        <!-- 4. Lock-in -->
         <section id="lock-in" class="card">
-            <h2>5. Triple Lock-in Analysis</h2>
+            <h2>4. Lock-in Analysis</h2>
             <div class="lock-grid">
-                <div class="lock-card">
-                    <div class="lock-icon">💰</div>
-                    <h3>Financial</h3>
-                    <p id="lock-fin">Supabase is predictable flat tiers; Firebase is "Pay-as-you-Scale" with potential spikes.</p>
-                </div>
-                <div class="lock-card">
-                    <div class="lock-icon">⚙️</div>
-                    <h3>Procedural</h3>
-                    <p id="lock-proc">GCP (Vertex/Cloud Run) requires deep DevOps and IAM knowledge.</p>
-                </div>
-                <div class="lock-card">
-                    <div class="lock-icon">📦</div>
-                    <h3>Data</h3>
-                    <p id="lock-data">SQL allows easy export; Firestore is proprietary NoSQL, making "out-migration" hard.</p>
-                </div>
+                <div class="lock-card"><div>💰</div><div><h3>Fin.</h3><p id="lock-fin">...</p></div></div>
+                <div class="lock-card"><div>⚙️</div><div><h3>Proc.</h3><p id="lock-proc">...</p></div></div>
+                <div class="lock-card"><div>📦</div><div><h3>Data</h3><p id="lock-data">...</p></div></div>
             </div>
         </section>
 
-        <!-- Risk Summary -->
+        <!-- 5. Risks -->
         <section id="risks" class="card warning">
-            <h2>6. Risk & Scalability Summary</h2>
-            <div class="risk-summary-content">
-                <div class="risk-module" id="risk-current">
-                    <h3>Supabase Weakest Link: <span class="highlight">Edge Logic</span></h3>
-                    <p>Postgres handles scaling well, but intensive custom business logic in the backend (Express) can become a bottleneck if not correctly containerized and horizontally scaled early.</p>
-                </div>
-                <div class="risk-module" id="risk-alt">
-                    <h3>GCP Weakest Link: <span class="highlight">Complexity Creep</span></h3>
-                    <p>Google Cloud's permission model (IAM) can lead to deployment failures and security leaks if the team is small. Firestore NoSQL can lead to "data spaghetti" without strict schema enforcement.</p>
-                </div>
-            </div>
+            <h2>5. Scalability Risks</h2>
+            <div class="risk-module" id="risk-current"><h3>Current Focus</h3><p id="risk-p-curr">...</p></div>
+            <div class="risk-module" id="risk-alt"><h3>Alt Focus</h3><p id="risk-p-alt">...</p></div>
         </section>
     </main>
 
     <footer class="footer">
-        <p>&copy; 2024 Migration Planner. All pricing estimates based on standard Tier 1 region assumptions.</p>
+        <p>&copy; 2024 Migration Analysis Engine</p>
     </footer>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=1.1"></script>
 </body>
 </html>
