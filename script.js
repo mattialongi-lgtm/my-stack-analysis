@@ -22,9 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (users > 500) supabasePrice = 25; // Pro Plan
 
             // Usage-based (Variable)
-            // Gemini API: $0.50 per 1M tokens approx
             const geminiVariable = (users * metrics.aiTokensPerUser / 1000000) * 0.5;
-            // Supabase Bandwidth: 50GB included in Pro, then $0.09 per GB
             const totalGB = users * metrics.dataTransferGB;
             const extraBW = Math.max(0, totalGB - (supabasePrice === 25 ? 50 : 5)) * 0.09;
 
@@ -39,18 +37,12 @@ document.addEventListener('DOMContentLoaded', () => {
             };
         } else {
             // Firebase / GCP (Heavily Variable)
-            // Firestore: $0.18 per 100k ops. (Assuming Spark free tier limits handled by math)
             const firestoreOps = users * metrics.dbOpsPerUser;
             const firestoreVariable = Math.max(0, (firestoreOps - 50000) / 100000) * 0.18;
-            
-            // Cloud Run: Based on duration/vCPU/RAM. 
-            // Simplified: $0.006 per user (assuming standard small containers with auto-scaling)
             const cloudRunVariable = users <= 100 ? 0 : (users * 0.006);
-            
-            // Vertex AI: Enterprise-grade Gemini pricing
             const vertexVariable = (users * metrics.aiTokensPerUser / 1000000) * 1.5;
 
-            const fixed = 0; // Pure serverless model
+            const fixed = 0;
             const variable = firestoreVariable + cloudRunVariable + vertexVariable;
 
             return {
@@ -121,6 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const barSupaVar = document.getElementById('bar-supa-var');
     const barFireFixed = document.getElementById('bar-fire-fixed');
     const barFireVar = document.getElementById('bar-fire-var');
+    const classBody = document.getElementById('class-body');
 
     const updateUI = () => {
         const isSupa = state.stack === 'supa';
@@ -134,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
         priceSupa.textContent = `$${Math.round(sCost.total)}`;
         priceFire.textContent = `$${Math.round(fCost.total)}`;
 
-        // Normalize bar widths (Max scale approx $200)
+        // Normalize bar widths
         const maxScale = Math.max(sCost.total, fCost.total, 80);
         
         barSupaFixed.style.width = `${(sCost.fixed / maxScale) * 100}%`;
@@ -157,7 +150,16 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('box-ai').nextElementSibling.textContent = stack.arch.aiLabel;
         document.getElementById('arch-type-label').textContent = isSupa ? "Current: Fixed/Tiered Core" : "Alternative: Elastic/Usage Core";
 
-        // 5. Analysis (English)
+        // 5. Classification Table (THE MISSING PIECE)
+        classBody.innerHTML = stack.classification.map(item => `
+            <tr>
+                <td><strong>${item.domain}</strong></td>
+                <td><span class="badge">${item.type}</span></td>
+                <td>${item.resp}</td>
+            </tr>
+        `).join('');
+
+        // 6. Analysis (English)
         document.getElementById('lock-fin').textContent = stack.lockin.fin;
         document.getElementById('lock-proc').textContent = stack.lockin.proc;
         document.getElementById('lock-data').textContent = stack.lockin.data;
